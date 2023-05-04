@@ -1,0 +1,41 @@
+[package]
+name        = "minigw"
+authors     = ["Jason de Wolff"]
+version     = "0.0.1"
+edition     = "2021"
+homepage    = "https://github.com/JasondeWolff/minigw"
+repository  = "https://github.com/JasondeWolff/minigw"
+categories  = ["window", "graphics"]
+license     = "MIT"
+
+[dependencies]
+winit     = "0.28.3"
+imgui = "0.10.0"
+cgmath    = "0.17.0"
+
+[lib]
+name = "minigw"
+crate-type = ["lib"]
+path = "src/lib.rs"
+
+[profile.dev]                           # Modify profile settings via config.
+opt-level = 0                           # Optimization level.
+debug = true                            # Include debug info.
+debug-assertions = true                 # Enables debug assertions.
+overflow-checks = true                  # Enables runtime integer overflow checks.
+lto = false                             # Sets link-time optimization.
+panic = 'unwind'                        # The panic strategy.
+incremental = true                      # Incremental compilation.
+codegen-units = 16                      # Number of code generation units.
+rpath = false                           # Sets the rpath linking option.
+
+[profile.release]                       # Modify profile settings via config.
+opt-level = 3                           # Optimization level.
+debug = true                           # Include debug info.
+debug-assertions = false                # Enables debug assertions.
+overflow-checks = false                 # Enables runtime integer overflow checks.
+lto = false                              # Sets link-time optimization.
+panic = 'abort'                         # The panic strategy.
+incremental = true                      # Incremental compilation.
+codegen-units = 1                       # Number of code generation units.
+rpath = false                           # Sets the rpath linking option.
