@@ -9,7 +9,8 @@ categories  = ["window", "graphics"]
 license     = "MIT"
 
 [dependencies]
-winit     = "0.28.3"
+glutin = "0.29.1"
+gl = "0.14.0"
 imgui = "0.10.0"
 cgmath    = "0.17.0"
 

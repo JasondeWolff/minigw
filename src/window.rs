@@ -2,31 +2,43 @@ use crate::RcCell;
 use crate::CoreLoop;
 
 pub struct Window {
-    window: winit::window::Window
+    context: glutin::ContextWrapper<glutin::PossiblyCurrent, glutin::window::Window>
 }
 
 impl Window {
     pub fn new(core_loop: &CoreLoop, title: &'static str, width: u32, height: u32) -> RcCell<Self> {        
-        let window = winit::window::WindowBuilder::new()
+        let window_builder = glutin::window::WindowBuilder::new()
             .with_title(title)
-            .with_inner_size(winit::dpi::PhysicalSize::new(width, height))
-            .build(&core_loop.winit_loop())
-            .expect("Failed to create window.");
+            .with_inner_size(glutin::dpi::PhysicalSize::new(width, height));
+
+        let context = glutin::ContextBuilder::new()
+            .with_gl(glutin::GlRequest::Specific(glutin::Api::OpenGl, (4, 3)))
+            .build_windowed(window_builder, &core_loop.winit_loop())
+            .expect("Failed to build context.");
+
+        let context = unsafe {
+            context.make_current()
+                .expect("Failed to make context current.")
+        };
 
         RcCell::new(Window {
-            window
+            context
         })
     }
 
-    pub(crate) fn get_winit_window(&self) -> &winit::window::Window {
-        &self.window
+    pub(crate) fn internal_context(&self) -> &glutin::ContextWrapper<glutin::PossiblyCurrent, glutin::window::Window> {
+        &self.context
+    }
+
+    pub(crate) fn internal_window(&self) -> &glutin::window::Window {
+        &self.context.window()
     }
 
     pub fn width(&self) -> u32 {
-        self.window.inner_size().width
+        self.internal_window().inner_size().width
     }
 
     pub fn height(&self) -> u32 {
-        self.window.inner_size().height
+        self.internal_window().inner_size().height
     }
 }

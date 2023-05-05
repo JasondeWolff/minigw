@@ -1,8 +1,9 @@
-pub use winit::event::{MouseButton, VirtualKeyCode, ElementState, KeyboardInput, WindowEvent};
+pub use glutin::event::{MouseButton, VirtualKeyCode, ElementState, KeyboardInput, WindowEvent};
 
 use cgmath::Vector2;
 use crate::RcCell;
 use crate::Window;
+use crate::gl_helpers::ImGui;
 
 const MAX_KEYS: usize = 512;
 const MAX_BUTTONS: usize = 32;
@@ -75,18 +76,18 @@ impl Input {
 
     pub fn set_cursor_mode(&mut self, mode: CursorMode) {
         let window = self.window.as_ref();
-        let winit_window = window.get_winit_window();
+        let winit_window = window.internal_window();
 
         match mode {
             CursorMode::FREE => {
-                winit_window.set_cursor_grab(winit::window::CursorGrabMode::None)
+                winit_window.set_cursor_grab(glutin::window::CursorGrabMode::None)
                     .expect("Failed to free cursor.");
                 winit_window.set_cursor_visible(true);
             },
             CursorMode::LOCKED => {
-                let _ = winit_window.set_cursor_grab(winit::window::CursorGrabMode::Confined)
+                let _ = winit_window.set_cursor_grab(glutin::window::CursorGrabMode::Confined)
                     .and_then(|_| {
-                        winit_window.set_cursor_grab(winit::window::CursorGrabMode::Locked)
+                        winit_window.set_cursor_grab(glutin::window::CursorGrabMode::Locked)
                     });
                     winit_window.set_cursor_visible(false);
             }
@@ -107,18 +108,16 @@ impl Input {
         self.keys[key_code as usize] = value;
     }
 
-    pub(crate) fn set_mouse_button(&mut self, button: MouseButton, value: bool) {
+    pub(crate) fn set_mouse_button(&mut self, button: MouseButton, value: bool, imgui: &mut ImGui) {
         self.keys[Self::mb_to_idx(button)] = value;
 
-        // let imgui = app().graphics().imgui();
-        // imgui.mouse_button_event(winit_to_imgui_mouse_button(button), value);
+        imgui.mouse_button_event(winit_to_imgui_mouse_button(button), value);
     }
 
-    pub(crate) fn set_mouse_pos(&mut self, mouse_pos: Vector2<i32>) {
+    pub(crate) fn set_mouse_pos(&mut self, mouse_pos: Vector2<i32>, imgui: &mut ImGui) {
         self.mouse_pos = mouse_pos;
 
-        // let imgui = app().graphics().imgui();
-        // imgui.mouse_pos_event(mouse_pos.x as f32, mouse_pos.y as f32);
+        imgui.mouse_pos_event(cgmath::Vector2::new(mouse_pos.x as f32, mouse_pos.y as f32));
     }
 
     pub(crate) fn set_mouse_delta(&mut self, mouse_delta: Vector2<f32>) {

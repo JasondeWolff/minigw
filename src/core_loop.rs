@@ -1,10 +1,12 @@
-use winit::event::{Event, VirtualKeyCode, ElementState, KeyboardInput, WindowEvent, DeviceEvent};
-use winit::event_loop::{ControlFlow, EventLoop};
+use glutin::event::{Event, VirtualKeyCode, ElementState, KeyboardInput, WindowEvent, DeviceEvent};
+use glutin::event_loop::{ControlFlow, EventLoop};
 use cgmath::Vector2;
 
 use crate::RcCell;
 use crate::Window;
 use crate::Input;
+use crate::{Renderer, RenderTextureView};
+use crate::gl_helpers::DebugUI;
 
 pub struct CoreLoop {
     event_loop: EventLoop<()>
@@ -23,11 +25,13 @@ impl CoreLoop {
         &self.event_loop
     }
 
-    pub fn run<F: Fn(RcCell<Window>, RcCell<Input>) + 'static>(self,
+    pub fn run<T: Copy, F: Fn(RcCell<Input>, RenderTextureView<T>, &mut DebugUI) + 'static>(self,
         core_update: F,
         rc_window: RcCell<Window>,
         rc_input: RcCell<Input>
     ) {
+        let mut renderer = Renderer::new(&rc_window.as_ref(), gl::RGBA32F);
+
         self.event_loop.run(move |event, _, control_flow| {
             match event {
                 | Event::WindowEvent { event, .. } => {
@@ -36,7 +40,7 @@ impl CoreLoop {
                             *control_flow = ControlFlow::Exit
                         },
                         | WindowEvent::Resized(size) => {
-                            //app.graphics().resize(size.width, size.height);
+                            renderer.resize(size.width, size.height);
                         },
                         | WindowEvent::KeyboardInput { input, .. } => {
                             match input {
@@ -54,27 +58,30 @@ impl CoreLoop {
                             }
                         },
                         | WindowEvent::MouseInput { state, button, .. } => {
-                            rc_input.as_mut().set_mouse_button(button, state == ElementState::Pressed);
+                            rc_input.as_mut().set_mouse_button(button, state == ElementState::Pressed, renderer.imgui());
                         },
                         | WindowEvent::CursorMoved { position, .. } => {
-                            rc_input.as_mut().set_mouse_pos(Vector2::new(position.x as i32, position.y as i32));
+                            rc_input.as_mut().set_mouse_pos(Vector2::new(position.x as i32, position.y as i32), renderer.imgui());
                         }
                         | _ => {},
                     }
                 },
                 | Event::MainEventsCleared => {
-                    rc_window.as_ref().get_winit_window().request_redraw();
+                    rc_window.as_ref().internal_window().request_redraw();
                 },
                 | Event::RedrawRequested(_window_id) => {
                     core_update(
-                        rc_window.clone(),
-                        rc_input.clone()
+                        rc_input.clone(),
+                        renderer.render_texture_view(),
+                        renderer.imgui().new_frame()
                     );
 
                     rc_input.as_mut().update();
+
+                    renderer.render(&rc_window.as_ref());
                 },
                 | Event::LoopDestroyed => {
-                    //app.graphics().wait_idle();
+                    
                 },
                 | Event::DeviceEvent { event, ..} => {
                     match event {
