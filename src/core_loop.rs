@@ -5,7 +5,7 @@ use cgmath::Vector2;
 use crate::RcCell;
 use crate::Window;
 use crate::Input;
-use crate::{Renderer, RenderTextureView};
+use crate::{Renderer, RenderTextureView, RenderTextureType};
 use crate::gl_helpers::DebugUI;
 
 pub struct CoreLoop {
@@ -25,12 +25,12 @@ impl CoreLoop {
         &self.event_loop
     }
 
-    pub fn run<T: Copy + Default + 'static, F: FnMut(RcCell<Input>, RcCell<RenderTextureView<T>>, &mut DebugUI) + 'static>(self,
+    pub fn run<T: RenderTextureType + 'static, F: FnMut(RcCell<Input>, RcCell<RenderTextureView<T>>, &mut DebugUI) + 'static>(self,
         mut core_update: F,
         rc_window: RcCell<Window>,
         rc_input: RcCell<Input>
     ) {
-        let mut renderer = Renderer::new(&rc_window.as_ref(), gl::RGBA32F);
+        let mut renderer = Renderer::new(&rc_window.as_ref());
 
         self.event_loop.run(move |event, _, control_flow| {
             match event {

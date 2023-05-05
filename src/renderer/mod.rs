@@ -10,17 +10,18 @@ mod render_texture;
 use render_texture::*;
 pub mod render_texture_view;
 pub use render_texture_view::*;
+pub mod render_texture_type;
+pub use render_texture_type::*;
 
-pub struct Renderer<T: Copy + Default> {
+pub struct Renderer<T: RenderTextureType> {
     imgui: ImGui,
     display_program: GLShaderProgram,
     display_vao: GLVAO,
     render_texture: RenderTexture<T>,
-    display_format: u32
 }
 
-impl<T: Copy + Default> Renderer<T> {
-    pub fn new(window: &Window, display_format: u32) -> Renderer<T> {
+impl<T: RenderTextureType> Renderer<T> {
+    pub fn new(window: &Window) -> Renderer<T> {
         gl_init(window);
 
         let (width, height) = (window.width(), window.height());
@@ -34,14 +35,13 @@ impl<T: Copy + Default> Renderer<T> {
         let display_program = GLShaderProgram::new(&vertex_shader, &fragment_shader);
         let display_vao = GLVAO::new();
 
-        let render_texture = RenderTexture::new(display_format, width, height);
+        let render_texture = RenderTexture::new(width, height);
 
         Renderer {
             imgui,
             display_program,
             render_texture,
-            display_vao,
-            display_format
+            display_vao
         }
     }
 
@@ -56,7 +56,7 @@ impl<T: Copy + Default> Renderer<T> {
         let height = std::cmp::max(height, 1);
 
         gl_viewport(width, height);
-        self.render_texture = RenderTexture::new(self.display_format, width, height);
+        self.render_texture = RenderTexture::new(width, height);
     }
 
     pub fn render_texture_view(&mut self) -> RcCell<RenderTextureView<T>> {

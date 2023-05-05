@@ -1,28 +1,26 @@
 use super::*;
 
-pub struct RenderTexture<T: Copy + Default> {
+pub struct RenderTexture<T: RenderTextureType> {
     texture: GLTexture,
     pbo: Vec<GLPBO>,
     pbo_idx: usize,
     width: u32,
     height: u32,
-    format: u32,
     ty: u32,
     size: usize,
 
     view: Option<RcCell<RenderTextureView<T>>>
 }
 
-impl<T: Copy + Default> RenderTexture<T> {
-    pub fn new(format: u32, width: u32, height: u32) -> RenderTexture<T> {
+impl<T: RenderTextureType> RenderTexture<T> {
+    pub fn new(width: u32, height: u32) -> RenderTexture<T> {
         gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 1);
 
         let texture = GLTexture::new(gl::TEXTURE_2D);
         let mut pbo = vec![GLPBO::new(), GLPBO::new()];
 
-        let format = gl::RGBA;
-        let size = (width * height * 4 * 4) as usize;
-        let ty = gl::FLOAT;
+        let size = (width * height * std::mem::size_of::<T>() as u32 * 3) as usize;
+        let ty = T::get_type();
 
         texture.bind(); {
             gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT);
@@ -30,7 +28,7 @@ impl<T: Copy + Default> RenderTexture<T> {
             gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST);
             gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST);
 
-            gl_tex_image_2d(gl::RGBA, width as i32, height as i32, format, ty, std::ptr::null());
+            gl_tex_image_2d(gl::RGB, width as i32, height as i32, gl::RGB, ty, std::ptr::null());
 
             for pbo in &mut pbo {
                 pbo.bind();
@@ -47,7 +45,6 @@ impl<T: Copy + Default> RenderTexture<T> {
             pbo_idx: 0,
             width,
             height,
-            format,
             ty,
             size,
             view: None
@@ -66,10 +63,10 @@ impl<T: Copy + Default> RenderTexture<T> {
             Some(view) => view.clone(),
             None => {
                 let view = RcCell::new(RenderTextureView {
-                    pixels: vec![T::default(); self.size / 4],
+                    pixels: vec![T::default(); self.size / std::mem::size_of::<T>()],
                     width: self.width,
                     height: self.height,
-                    elem_count: 4
+                    elem_count: 3
                 });
         
                 self.view = Some(view.clone());
@@ -89,7 +86,7 @@ impl<T: Copy + Default> RenderTexture<T> {
         gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 1);
 
         self.texture.bind();
-        gl_tex_sub_image_2d(self.width as i32, self.height as i32, self.format, self.ty, std::ptr::null());
+        gl_tex_sub_image_2d(self.width as i32, self.height as i32, gl::RGB, self.ty, std::ptr::null());
         self.texture.unbind();
 
         gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 4);
