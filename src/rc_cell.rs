@@ -1,7 +1,6 @@
 pub use std::rc::Rc;
 pub use std::cell::{RefCell, Ref, RefMut};
 
-#[derive(Clone)]
 pub struct RcCell<T> {
     value: Rc<RefCell<T>>
 }
@@ -28,8 +27,10 @@ impl<T> RcCell<T> {
     pub fn as_ptr(&self) -> *const T {
         RefCell::as_ptr(&self.value)
     }
+}
 
-    pub fn clone(&self) -> RcCell<T> {
+impl<T> Clone for RcCell<T> {
+    fn clone(&self) -> Self {
         RcCell {
             value: self.value.clone()
         }

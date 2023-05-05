@@ -90,7 +90,7 @@ impl GLTexture {
     pub fn new(target: GLTextureType) -> Self {
         GLTexture {
             buffer: gl_gen_texture(),
-            target: target
+            target
         }
     }
 

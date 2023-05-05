@@ -8,26 +8,32 @@ use std::ffi::*;
 
 pub type GLBuffer = gl::types::GLuint;
 
+#[allow(clippy::upper_case_acronyms)]
 pub struct GLVAO {
     buffer: GLBuffer
 }
 
+#[allow(clippy::upper_case_acronyms)]
 pub struct GLVBO {
     buffer: GLBuffer
 }
 
+#[allow(clippy::upper_case_acronyms)]
 pub struct GLEBO {
     buffer: GLBuffer
 }
 
+#[allow(clippy::upper_case_acronyms)]
 pub struct GLFBO {
     buffer: GLBuffer
 }
 
+#[allow(clippy::upper_case_acronyms)]
 pub struct GLRBO {
     buffer: GLBuffer
 }
 
+#[allow(clippy::upper_case_acronyms)]
 pub struct GLPBO {
     buffer: GLBuffer,
     size: usize

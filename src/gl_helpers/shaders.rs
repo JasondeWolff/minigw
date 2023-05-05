@@ -15,8 +15,8 @@ pub struct GLShader {
 }
 
 pub enum GLShaderType {
-    VERTEX,
-    FRAGMENT
+    Vertex,
+    Fragment
 }
 
 pub struct GLShaderProgram {
@@ -37,17 +37,17 @@ pub struct GLUniform {
 ******************************************************************************/
 
 impl GLShader {
-    pub fn new(shader_type: GLShaderType, source: &String) -> Self {
+    pub fn new(shader_type: GLShaderType, source: &str) -> Self {
         let buffer: GLShaderBuffer = match shader_type {
-            GLShaderType::VERTEX => gl_create_vert_shader(),
-            GLShaderType::FRAGMENT => gl_create_frag_shader()
+            GLShaderType::Vertex => gl_create_vert_shader(),
+            GLShaderType::Fragment => gl_create_frag_shader()
         };
 
         gl_shader_source(buffer, source);
         gl_compile_shader(buffer);
 
         GLShader {
-            buffer: buffer
+            buffer
         }
     }
 
@@ -180,7 +180,7 @@ impl GLShaderProgram {
 
     fn uniform_location(&mut self, name: &String) -> i32 {
         match self.uniform_locations.get(name) {
-            Some(location) => location.clone(),
+            Some(location) => *location,
             None => {
                 unsafe {
                     let mut cname = name.clone();
@@ -220,8 +220,8 @@ fn gl_create_frag_shader() -> GLShaderBuffer {
     }
 }
 
-fn gl_shader_source(shader: GLShaderBuffer, source: &String) {
-    let mut safe_source = source.clone();
+fn gl_shader_source(shader: GLShaderBuffer, source: &str) {
+    let mut safe_source = source.to_owned();
     safe_source.push('\0');
 
     unsafe {
@@ -244,8 +244,8 @@ fn gl_compile_shader(shader: GLShaderBuffer) {
             gl_check();
 
             let mut buffer_str: String = String::new();
-            for i in 0..info_size {
-                buffer_str.push(buffer_data[i] as char);
+            for buffer_data in buffer_data {
+                buffer_str.push(buffer_data as char);
             }
 
             if info_size > 0 && buffer_str.contains("error") {
@@ -290,8 +290,8 @@ fn gl_link_program(shader_program: GLShaderProgramBuffer) {
             gl_check();
 
             let mut buffer_str: String = String::new();
-            for i in 0..info_size {
-                buffer_str.push(buffer_data[i] as char);
+            for buffer_data in buffer_data {
+                buffer_str.push(buffer_data as char);
             }
 
             if info_size > 0 && buffer_str.contains("error") {

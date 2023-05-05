@@ -1,3 +1,6 @@
+#![warn(clippy::all)]
+#![allow(clippy::manual_memcpy)]
+
 pub extern crate cgmath;
 pub extern crate imgui;
 pub use cgmath::*;

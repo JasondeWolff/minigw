@@ -26,7 +26,7 @@ fn gl_check() {
     unsafe {
         let error = gl::GetError();
         match error {
-            gl::NO_ERROR => return,
+            gl::NO_ERROR => (),
             gl::INVALID_ENUM => panic!("GL invalid enum."),
             gl::INVALID_VALUE => panic!("GL invalid value."),
             gl::INVALID_OPERATION => panic!("GL invalid operation."),

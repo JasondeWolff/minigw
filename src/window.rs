@@ -9,11 +9,11 @@ impl Window {
     pub fn new(core_loop: &CoreLoop, title: &'static str, width: u32, height: u32) -> RcCell<Self> {        
         let window_builder = glutin::window::WindowBuilder::new()
             .with_title(title)
-            .with_inner_size(glutin::dpi::PhysicalSize::new(width, height));
+            .with_inner_size(glutin::dpi::LogicalSize::new(width, height));
 
         let context = glutin::ContextBuilder::new()
             .with_gl(glutin::GlRequest::Specific(glutin::Api::OpenGl, (4, 3)))
-            .build_windowed(window_builder, &core_loop.winit_loop())
+            .build_windowed(window_builder, core_loop.winit_loop())
             .expect("Failed to build context.");
 
         let context = unsafe {
@@ -31,7 +31,7 @@ impl Window {
     }
 
     pub(crate) fn internal_window(&self) -> &glutin::window::Window {
-        &self.context.window()
+        self.context.window()
     }
 
     pub fn width(&self) -> u32 {

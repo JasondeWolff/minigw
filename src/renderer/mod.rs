@@ -30,8 +30,8 @@ impl<T: RenderTextureType> Renderer<T> {
         imgui.resize(width, height);
         gl_viewport(width, height);
 
-        let vertex_shader = GLShader::new(GLShaderType::VERTEX, &DISPLAY_SHADER_SRC_VERT.to_owned());
-        let fragment_shader = GLShader::new(GLShaderType::FRAGMENT, &DISPLAY_SHADER_SRC_FRAG.to_owned());
+        let vertex_shader = GLShader::new(GLShaderType::Vertex, DISPLAY_SHADER_SRC_VERT);
+        let fragment_shader = GLShader::new(GLShaderType::Fragment, DISPLAY_SHADER_SRC_FRAG);
         let display_program = GLShaderProgram::new(&vertex_shader, &fragment_shader);
         let display_vao = GLVAO::new();
 

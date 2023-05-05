@@ -41,8 +41,8 @@ impl Input {
     }
 
     pub(crate) fn update(&mut self) {
-        self.keys_prev = self.keys.clone();
-        self.buttons_prev = self.buttons.clone();
+        self.keys_prev = self.keys;
+        self.buttons_prev = self.buttons;
         self.mouse_delta = Vector2::new(0.0, 0.0);
     }
 
