@@ -13,7 +13,7 @@ pub use render_texture_view::*;
 pub mod render_texture_type;
 pub use render_texture_type::*;
 
-pub struct Renderer<T: RenderTextureType> {
+pub(crate) struct Renderer<T: RenderTextureType> {
     imgui: ImGui,
     display_program: GLShaderProgram,
     display_vao: GLVAO,
@@ -21,7 +21,7 @@ pub struct Renderer<T: RenderTextureType> {
 }
 
 impl<T: RenderTextureType> Renderer<T> {
-    pub fn new(window: &Window) -> Renderer<T> {
+    pub(crate) fn new(window: &Window) -> Renderer<T> {
         gl_init(window);
 
         let (width, height) = (window.width(), window.height());
@@ -45,11 +45,11 @@ impl<T: RenderTextureType> Renderer<T> {
         }
     }
 
-    pub fn imgui(&mut self) -> &mut ImGui {
+    pub(crate) fn imgui(&mut self) -> &mut ImGui {
         &mut self.imgui
     }
 
-    pub fn resize(&mut self, width: u32, height: u32) {
+    pub(crate) fn resize(&mut self, width: u32, height: u32) {
         self.imgui.resize(width, height);
 
         let width = std::cmp::max(width, 1);
@@ -59,11 +59,11 @@ impl<T: RenderTextureType> Renderer<T> {
         self.render_texture = RenderTexture::new(width, height);
     }
 
-    pub fn render_texture_view(&mut self) -> RcCell<RenderTextureView<T>> {
+    pub(crate) fn render_texture_view(&mut self) -> RcCell<RenderTextureView<T>> {
         self.render_texture.map()
     }
 
-    pub fn render(&mut self, window: &Window) {
+    pub(crate) fn render(&mut self, window: &Window) {
         gl_clear_color(Vector3::new(1.0, 0.0, 1.0));
         gl_clear();
 

@@ -1,6 +1,7 @@
-pub use std::rc::Rc;
-pub use std::cell::{RefCell, Ref, RefMut};
+use std::rc::Rc;
+use std::cell::{RefCell, Ref, RefMut};
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct RcCell<T> {
     value: Rc<RefCell<T>>
 }

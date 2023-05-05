@@ -1,4 +1,4 @@
-pub use glutin::event::{MouseButton, VirtualKeyCode, ElementState, KeyboardInput, WindowEvent};
+pub use glutin::event::{MouseButton, VirtualKeyCode};
 
 use cgmath::Vector2;
 use crate::RcCell;

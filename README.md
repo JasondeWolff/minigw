@@ -1,7 +1,9 @@
 minigw
 ======
 
-
+[![minigw crate](https://img.shields.io/crates/v/minigw.svg)](https://crates.io/crates/minigw)
+![minimum rustc 1.0](https://img.shields.io/badge/rustc-1.0+-red.svg)
+[![minigw documentation](https://docs.rs/minigw/badge.svg)](https://docs.rs/minigw)
 
 A convenient Rust library for creating cross platform windows and displaying pixel buffers. It also makes it easy to get keyboard and mouse input. There is full imgui rendering support build-in.
 
@@ -79,5 +81,4 @@ fn main() {
 
 ## License
 
-This project is licensed under the MIT license ([LICENSE-MIT](LICENSE-MIT) or
-   https://opensource.org/licenses/MIT).
+This project is licensed under the MIT license ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT).
