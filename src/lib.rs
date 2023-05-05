@@ -17,9 +17,17 @@ use renderer::*;
 mod gl_helpers;
 use gl_helpers::DebugUI;
 
-pub fn new<T: RenderTextureType + 'static, F: FnMut(RcCell<Input>, RcCell<RenderTextureView<T>>, &mut DebugUI) + 'static>(title: &'static str, core_update: F) {
+pub fn new<T, F>(
+    title: &'static str,
+    width: u32,
+    height: u32,
+    core_update: F
+) where
+    T: RenderTextureType + 'static,
+    F: FnMut(RcCell<Input>, RcCell<RenderTextureView<T>>, &mut DebugUI) + 'static
+{
     let core_loop = CoreLoop::new();
-    let window = Window::new(&core_loop, title, 1280, 720);
+    let window = Window::new(&core_loop, title, width, height);
     let input = Input::new(window.clone());
 
     core_loop.run(

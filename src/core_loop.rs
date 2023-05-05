@@ -25,11 +25,14 @@ impl CoreLoop {
         &self.event_loop
     }
 
-    pub fn run<T: RenderTextureType + 'static, F: FnMut(RcCell<Input>, RcCell<RenderTextureView<T>>, &mut DebugUI) + 'static>(self,
+    pub fn run<T, F>(self,
         mut core_update: F,
         rc_window: RcCell<Window>,
         rc_input: RcCell<Input>
-    ) {
+    ) where
+        T: RenderTextureType + 'static,
+        F: FnMut(RcCell<Input>, RcCell<RenderTextureView<T>>, &mut DebugUI) + 'static
+    {
         let mut renderer = Renderer::new(&rc_window.as_ref());
 
         self.event_loop.run(move |event, _, control_flow| {
