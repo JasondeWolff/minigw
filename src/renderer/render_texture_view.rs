@@ -1,30 +1,25 @@
 pub struct RenderTextureView<T: Copy> {
-    pub(super) pixels: *mut T,
+    pub(super) pixels: Vec<T>,
     pub(super) width: u32,
     pub(super) height: u32,
-    pub(super) format: u32,
-    pub(super) ty: u32,
     pub(super) elem_count: isize
 }
 
 impl<T: Copy> RenderTextureView<T> {
     pub fn get_pixel(&self, x: u32, y: u32) -> &[T] {
-        unsafe {
-            let offset = (y * self.width + x) as isize;
-            let data_ptr = self.pixels.offset(offset * self.elem_count);
-            std::slice::from_raw_parts(data_ptr, self.elem_count as usize)
-        }
+        let start = ((y * self.width + x) * self.elem_count as u32) as usize;
+        let end = start + self.elem_count as usize;
+        &self.pixels[start..end]
     }
 
-    pub fn set_pixel(&self, x: u32, y: u32, value: &[T]) {
-        unsafe {
-            let offset = (y * self.width + x) as isize;
-            let data_ptr = self.pixels.offset(offset * self.elem_count);
-            let elems = std::slice::from_raw_parts_mut(data_ptr, self.elem_count as usize);
-            
-            for i in 0..self.elem_count {
-                elems[i as usize] = value[i as usize];
-            }
+    pub fn set_pixel(&mut self, x: u32, y: u32, value: &[T]) {
+        let start = ((y * self.width + x) * self.elem_count as u32) as usize;
+        let end = start + self.elem_count as usize;
+
+        let mut j = 0;
+        for i in start..end {
+            self.pixels[i] = value[j];
+            j += 1;
         }
     }
 
