@@ -25,8 +25,8 @@ impl CoreLoop {
         &self.event_loop
     }
 
-    pub fn run<T: Copy, F: Fn(RcCell<Input>, RenderTextureView<T>, &mut DebugUI) + 'static>(self,
-        core_update: F,
+    pub fn run<T: Copy + Default + 'static, F: FnMut(RcCell<Input>, RcCell<RenderTextureView<T>>, &mut DebugUI) + 'static>(self,
+        mut core_update: F,
         rc_window: RcCell<Window>,
         rc_input: RcCell<Input>
     ) {

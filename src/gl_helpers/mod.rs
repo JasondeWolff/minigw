@@ -19,6 +19,7 @@ pub fn gl_init(window: &Window) {
     gl_check();
 }
 
+#[cfg(debug_assertions)]
 fn gl_check() {
     unsafe {
         let error = gl::GetError();
@@ -34,6 +35,9 @@ fn gl_check() {
         }
     }
 }
+
+#[cfg(not(debug_assertions))]
+fn gl_check() {}
 
 pub fn gl_enable_depth() {
     unsafe {

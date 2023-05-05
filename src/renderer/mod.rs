@@ -1,5 +1,6 @@
 use cgmath::Vector3;
 
+use crate::RcCell;
 use crate::Window;
 use crate::gl_helpers::*;
 
@@ -10,16 +11,16 @@ use render_texture::*;
 pub mod render_texture_view;
 pub use render_texture_view::*;
 
-pub struct Renderer {
+pub struct Renderer<T: Copy + Default> {
     imgui: ImGui,
     display_program: GLShaderProgram,
     display_vao: GLVAO,
-    render_texture: RenderTexture,
+    render_texture: RenderTexture<T>,
     display_format: u32
 }
 
-impl Renderer {
-    pub fn new(window: &Window, display_format: u32) -> Renderer {
+impl<T: Copy + Default> Renderer<T> {
+    pub fn new(window: &Window, display_format: u32) -> Renderer<T> {
         gl_init(window);
 
         let (width, height) = (window.width(), window.height());
@@ -58,7 +59,7 @@ impl Renderer {
         self.render_texture = RenderTexture::new(self.display_format, width, height);
     }
 
-    pub fn render_texture_view<T: Copy>(&self) -> RenderTextureView<T> {
+    pub fn render_texture_view(&mut self) -> RcCell<RenderTextureView<T>> {
         self.render_texture.map()
     }
 
