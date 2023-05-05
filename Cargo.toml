@@ -1,10 +1,11 @@
 [package]
 name        = "minigw"
 authors     = ["Jason de Wolff"]
+description = "A convenient Rust library for creating cross platform windows and displaying pixel buffers."
 version     = "0.0.1"
 edition     = "2021"
-homepage    = "https://github.com/JasondeWolff/minigw"
 repository  = "https://github.com/JasondeWolff/minigw"
+documentation = "https://docs.rs/minigw/"
 categories  = ["window", "graphics"]
 license     = "MIT"
 
