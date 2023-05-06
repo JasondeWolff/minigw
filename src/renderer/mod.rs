@@ -3,6 +3,7 @@ use cgmath::Vector3;
 use crate::RcCell;
 use crate::Window;
 use crate::gl_helpers::*;
+use crate::FramebufferMode;
 
 mod shaders;
 use shaders::*;
@@ -18,10 +19,12 @@ pub(crate) struct Renderer<T: RenderTextureType> {
     display_program: GLShaderProgram,
     display_vao: GLVAO,
     render_texture: RenderTexture<T>,
+    framebuffer_mode: FramebufferMode,
+    use_pbo: bool
 }
 
 impl<T: RenderTextureType> Renderer<T> {
-    pub(crate) fn new(window: &Window) -> Renderer<T> {
+    pub(crate) fn new(window: &Window, framebuffer_mode: FramebufferMode) -> Renderer<T> {
         gl_init(window);
 
         let (width, height) = (window.width(), window.height());
@@ -35,13 +38,21 @@ impl<T: RenderTextureType> Renderer<T> {
         let display_program = GLShaderProgram::new(&vertex_shader, &fragment_shader);
         let display_vao = GLVAO::new();
 
-        let render_texture = RenderTexture::new(width, height);
+        let (width, height) = match framebuffer_mode {
+            FramebufferMode::Resizing(scale) => ((width as f32 * scale) as u32, (height as f32 * scale) as u32),
+            _ => (width, height)
+        };
+
+        let use_pbo = window.support_pbo();
+        let render_texture = RenderTexture::new(width, height, use_pbo);
 
         Renderer {
             imgui,
             display_program,
             render_texture,
-            display_vao
+            display_vao,
+            framebuffer_mode,
+            use_pbo
         }
     }
 
@@ -56,7 +67,13 @@ impl<T: RenderTextureType> Renderer<T> {
         let height = std::cmp::max(height, 1);
 
         gl_viewport(width, height);
-        self.render_texture = RenderTexture::new(width, height);
+        if let FramebufferMode::Resizing(scale) = self.framebuffer_mode {
+            self.render_texture = RenderTexture::new(
+                (width as f32 * scale) as u32,
+                (height as f32 * scale) as u32,
+                self.use_pbo
+            );
+        }
     }
 
     pub(crate) fn render_texture_view(&mut self) -> RcCell<RenderTextureView<T>> {

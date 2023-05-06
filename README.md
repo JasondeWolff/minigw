@@ -81,8 +81,8 @@ fn main() {
 
 ## Planned features
 - [X] Gamma correction
-- [ ] Window icon
-- [ ] Framebuffer scaling
+- [X] Window icon
+- [X] Framebuffer scaling
 - [ ] f32 (HDR) colour conversion
 - [ ] Adjustable colour grading
 - [ ] Dedicated render thread

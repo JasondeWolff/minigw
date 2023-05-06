@@ -1,20 +1,19 @@
 pub struct RenderTextureView<T: Copy> {
     pub(super) pixels: Vec<T>,
     pub(super) width: u32,
-    pub(super) height: u32,
-    pub(super) elem_count: isize
+    pub(super) height: u32
 }
 
 impl<T: Copy> RenderTextureView<T> {
-    pub fn get_pixel(&self, x: u32, y: u32) -> &[T] {
-        let start = ((y * self.width + x) * self.elem_count as u32) as usize;
-        let end = start + self.elem_count as usize;
-        &self.pixels[start..end]
+    pub fn get_pixel(&self, x: u32, y: u32) -> &[T; 3] {
+        let start = ((y * self.width + x) * 3) as usize;
+        let end = start + 3;
+        self.pixels[start..end].try_into().unwrap()
     }
 
-    pub fn set_pixel(&mut self, x: u32, y: u32, value: &[T]) {
-        let start = ((y * self.width + x) * self.elem_count as u32) as usize;
-        let end = start + self.elem_count as usize;
+    pub fn set_pixel(&mut self, x: u32, y: u32, value: &[T; 3]) {
+        let start = ((y * self.width + x) * 3) as usize;
+        let end = start + 3;
 
         let mut j = 0;
         for i in start..end {

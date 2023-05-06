@@ -16,7 +16,7 @@ pub use imgui_impl::*;
 
 use crate::Window;
 
-pub fn gl_init(window: &Window) {
+pub(crate) fn gl_init(window: &Window) {
     gl::load_with(|ptr| window.internal_context().get_proc_address(ptr) as *const _);
     gl_check();
 }

@@ -96,30 +96,38 @@ pub mod input;
 pub use input::*;
 pub mod renderer;
 pub use renderer::*;
+pub mod window;
+pub use window::*;
 
-mod window;
-use window::*;
 mod core_loop;
 use core_loop::*;
 mod gl_helpers;
 use gl_helpers::DebugUI;
 
+pub enum FramebufferMode {
+    Const,
+    Resizing(f32)
+}
+
 pub fn new<T, F>(
     title: &'static str,
     width: u32,
     height: u32,
+    framebuffer_mode: FramebufferMode,
+    icon: Option<Icon>,
     core_update: F
 ) where
     T: RenderTextureType + 'static,
     F: FnMut(RcCell<Input>, RcCell<RenderTextureView<T>>, &mut DebugUI) + 'static
 {
     let core_loop = CoreLoop::new();
-    let window = Window::new(&core_loop, title, width, height);
+    let window = Window::new(&core_loop, title, width, height, icon);
     let input = Input::new(window.clone());
 
     core_loop.run(
         core_update,
         window,
-        input
+        input,
+        framebuffer_mode
     );
 }

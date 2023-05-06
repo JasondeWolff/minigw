@@ -2,7 +2,7 @@ use glutin::event::{Event, VirtualKeyCode, ElementState, KeyboardInput, WindowEv
 use glutin::event_loop::{ControlFlow, EventLoop};
 use cgmath::Vector2;
 
-use crate::RcCell;
+use crate::{RcCell, FramebufferMode};
 use crate::Window;
 use crate::Input;
 use crate::{Renderer, RenderTextureView, RenderTextureType};
@@ -13,7 +13,7 @@ pub struct CoreLoop {
 }
 
 impl CoreLoop {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         let event_loop = EventLoop::new();
 
         CoreLoop {
@@ -25,15 +25,16 @@ impl CoreLoop {
         &self.event_loop
     }
 
-    pub fn run<T, F>(self,
+    pub(crate) fn run<T, F>(self,
         mut core_update: F,
         rc_window: RcCell<Window>,
-        rc_input: RcCell<Input>
+        rc_input: RcCell<Input>,
+        framebuffer_mode: FramebufferMode
     ) where
         T: RenderTextureType + 'static,
         F: FnMut(RcCell<Input>, RcCell<RenderTextureView<T>>, &mut DebugUI) + 'static
     {
-        let mut renderer = Renderer::new(&rc_window.as_ref());
+        let mut renderer = Renderer::new(&rc_window.as_ref(), framebuffer_mode);
 
         self.event_loop.run(move |event, _, control_flow| {
             match event {

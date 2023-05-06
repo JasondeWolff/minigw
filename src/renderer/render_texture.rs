@@ -9,11 +9,12 @@ pub struct RenderTexture<T: RenderTextureType> {
     ty: u32,
     size: usize,
 
-    view: Option<RcCell<RenderTextureView<T>>>
+    view: Option<RcCell<RenderTextureView<T>>>,
+    use_pbo: bool
 }
 
 impl<T: RenderTextureType> RenderTexture<T> {
-    pub fn new(width: u32, height: u32) -> RenderTexture<T> {
+    pub fn new(width: u32, height: u32, use_pbo: bool) -> RenderTexture<T> {
         gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 1);
 
         let texture = GLTexture::new(gl::TEXTURE_2D);
@@ -23,8 +24,8 @@ impl<T: RenderTextureType> RenderTexture<T> {
         let ty = T::get_type();
 
         texture.bind(); {
-            gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::REPEAT);
-            gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::REPEAT);
+            gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE);
+            gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE);
             gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST);
             gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST);
 
@@ -47,7 +48,8 @@ impl<T: RenderTextureType> RenderTexture<T> {
             height,
             ty,
             size,
-            view: None
+            view: None,
+            use_pbo
         }
     }
 
@@ -57,16 +59,13 @@ impl<T: RenderTextureType> RenderTexture<T> {
     }
 
     pub fn map(&mut self) -> RcCell<RenderTextureView<T>> {
-        self.pbo[self.pbo_idx].bind();
-
         match &self.view {
             Some(view) => view.clone(),
             None => {
                 let view = RcCell::new(RenderTextureView {
                     pixels: vec![T::default(); self.size / std::mem::size_of::<T>()],
                     width: self.width,
-                    height: self.height,
-                    elem_count: 3
+                    height: self.height
                 });
         
                 self.view = Some(view.clone());
@@ -76,23 +75,32 @@ impl<T: RenderTextureType> RenderTexture<T> {
     }
 
     pub fn unmap(&mut self) {
-        let pixels = self.pbo[self.pbo_idx].map() as *mut T;
-        unsafe {
+        if self.use_pbo {
+            self.pbo[self.pbo_idx].bind();
+            let pixels = self.pbo[self.pbo_idx].map() as *mut T;
+            unsafe {
+                let view = self.view.as_ref().unwrap().as_ref();
+                pixels.copy_from_nonoverlapping(view.pixels.as_ptr(), view.pixels.len());
+            }
+            self.pbo[self.pbo_idx].unmap();
+
+            gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 1);
+
+            self.texture.bind();
+            gl_tex_sub_image_2d(self.width as i32, self.height as i32, gl::RGB, self.ty, std::ptr::null());
+            self.texture.unbind();
+
+            gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 4);
+
+            self.pbo[self.pbo_idx].unbind();
+
+            self.pbo_idx = (self.pbo_idx + 1) % self.pbo.len();
+        } else {
             let view = self.view.as_ref().unwrap().as_ref();
-            pixels.copy_from_nonoverlapping(view.pixels.as_ptr(), view.pixels.len());
+
+            self.texture.bind();
+            gl_tex_sub_image_2d(self.width as i32, self.height as i32, gl::RGB, self.ty, view.pixels.as_ptr() as *const std::ffi::c_void);
+            self.texture.unbind();
         }
-        self.pbo[self.pbo_idx].unmap();
-        
-        gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 1);
-
-        self.texture.bind();
-        gl_tex_sub_image_2d(self.width as i32, self.height as i32, gl::RGB, self.ty, std::ptr::null());
-        self.texture.unbind();
-
-        gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 4);
-
-        self.pbo[self.pbo_idx].unbind();
-
-        self.pbo_idx = (self.pbo_idx + 1) % self.pbo.len();
     }
 }

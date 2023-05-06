@@ -237,7 +237,7 @@ fn gl_compile_shader(shader: GLShaderBuffer) {
         gl_check();
 
         if cfg!(debug_assertions) {
-            let mut buffer_data: [u8; 1024*128] = [0; 1024*128];
+            let mut buffer_data: [u8; 1024*32] = [0; 1024*32];
             let mut info_size: usize = 0;
 
             gl::GetShaderInfoLog(shader, (mem::size_of::<char>() * buffer_data.len()) as i32, (&mut info_size) as *mut usize as *mut i32, buffer_data.as_mut_ptr() as *mut c_char);
