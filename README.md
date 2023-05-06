@@ -13,7 +13,7 @@ A convenient Rust library for creating cross platform windows and displaying pix
 Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
-minigw = "0.0.1"
+minigw = "0.0.2"
 ```
 This example shows how to create a window and how to draw a gradient every frame.
 ```rust
