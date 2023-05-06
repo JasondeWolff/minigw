@@ -2,7 +2,7 @@
 name            = "minigw"
 authors         = ["Jason de Wolff <jasondewolff@gmail.com>"]
 description     = "A convenient Rust library for creating cross platform windows and displaying pixel buffers."
-version         = "0.0.1"
+version         = "0.0.2"
 edition         = "2021"
 repository      = "https://github.com/JasondeWolff/minigw"
 documentation   = "https://docs.rs/minigw/"
