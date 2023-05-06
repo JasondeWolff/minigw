@@ -22,11 +22,11 @@
 //! fn main() {
 //!     minigw::new::<u8, _>("Example", 1280, 720,
 //!         move |input, render_texture, imgui| {  
-//!             let mut render_texture = render_texture.    as_mut();
+//!             let mut render_texture = render_texture.as_mut();
 //! 
 //!             for x in 0..render_texture.width() {
 //!                 for y in 0..render_texture.height() {
-//!                     let uv = (x as f32 /    render_texture.width() as f32, y   as f32 / render_texture.height()  as f32);
+//!                     let uv = (x as f32 / render_texture.width() as f32, y as f32 / render_texture.height() as f32);
 //!                     render_texture.set_pixel(x, y, &[(uv.0 * 255.99) as u8, (uv.1 * 255.99) as u8, 0]);
 //!                 }
 //!             }
@@ -45,12 +45,12 @@
 //!             // ...
 //! 
 //!             let mut input_mut = input.as_mut();
-//!             if input_mut.key_down           (minigw::VirtualKeyCode::Space) {
+//!             if input_mut.key_down(minigw::VirtualKeyCode::Space) {
 //!                 input_mut.toggle_cursor_mode();
 //!             }
 //! 
 //!             imgui.window("Example window")
-//!                 .size([400.0, 700.0],           imgui::Condition::FirstUseEver)
+//!                 .size([400.0, 700.0], imgui::Condition::FirstUseEver)
 //!                 .build(|| {
 //!                     let mut x = 0.0;
 //!                     imgui.slider("Slider", 0.0, 1.0, &mut x);
@@ -67,11 +67,11 @@
 //! fn main() {
 //!     minigw::new::<f32, _>("Example", 1280, 720,
 //!         move |input, render_texture, imgui| {  
-//!             let mut render_texture = render_texture.    as_mut();
+//!             let mut render_texture = render_texture.as_mut();
 //! 
 //!             for x in 0..render_texture.width() {
 //!                 for y in 0..render_texture.height() {
-//!                     let uv = (x as f32 /    render_texture.width() as f32, y   as f32 / render_texture.height()  as f32);
+//!                     let uv = (x as f32 / render_texture.width() as f32, y as f32 / render_texture.height() as f32);
 //!                     render_texture.set_pixel(x, y, &[uv.0, uv.1, 0]);
 //!                 }
 //!             }

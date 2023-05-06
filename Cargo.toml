@@ -1,13 +1,14 @@
 [package]
-name        = "minigw"
-authors     = ["Jason de Wolff <jasondewolff@gmail.com>"]
-description = "A convenient Rust library for creating cross platform windows and displaying pixel buffers."
-version     = "0.0.1"
-edition     = "2021"
-repository  = "https://github.com/JasondeWolff/minigw"
-documentation = "https://docs.rs/minigw/"
-categories  = ["window", "graphics"]
-license     = "MIT"
+name            = "minigw"
+authors         = ["Jason de Wolff <jasondewolff@gmail.com>"]
+description     = "A convenient Rust library for creating cross platform windows and displaying pixel buffers."
+version         = "0.0.1"
+edition         = "2021"
+repository      = "https://github.com/JasondeWolff/minigw"
+documentation   = "https://docs.rs/minigw/"
+categories      = ["rendering", "graphics", "gui", "games"]
+keywords        = ["minigw", "framebuffer", "graphics", "games", "window"]
+license         = "MIT"
 
 [dependencies]
 glutin = "0.29.1"
