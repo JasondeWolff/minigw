@@ -20,7 +20,7 @@
 //! extern crate minigw;
 //! 
 //! fn main() {
-//!     minigw::new::<u8, _>("Example", 1280, 720,
+//!     minigw::new::<u8, _>("Example", 1280, 720, minigw::FramebufferMode::Resizable(1.0), None,
 //!         move |input, render_texture, imgui| {  
 //!             let mut render_texture = render_texture.as_mut();
 //! 
@@ -40,7 +40,7 @@
 //! use minigw::imgui;
 //! 
 //! fn main() {
-//!     minigw::new::<u8, _>("Example", 1280, 720,
+//!     minigw::new::<u8, _>("Example", 1280, 720, minigw::FramebufferMode::Resizable(1.0), None,
 //!         move |input, render_texture, imgui| {
 //!             // ...
 //! 
@@ -65,7 +65,7 @@
 //! extern crate minigw;
 //! 
 //! fn main() {
-//!     minigw::new::<f32, _>("Example", 1280, 720,
+//!     minigw::new::<f32, _>("Example", 1280, 720, minigw::FramebufferMode::Resizable(1.0), None,
 //!         move |input, render_texture, imgui| {  
 //!             let mut render_texture = render_texture.as_mut();
 //! 
@@ -81,7 +81,7 @@
 //! 
 //! ## License
 //! 
-//! This project is licensed under the MIT license ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT).
+//! This project is licensed under the MIT license ([LICENSE-MIT](LICENSE-MIT) or <https://opensource.org/licenses/MIT>).
 
 #![warn(clippy::all)]
 #![allow(clippy::manual_memcpy)]
@@ -105,8 +105,8 @@ mod gl_helpers;
 use gl_helpers::DebugUI;
 
 pub enum FramebufferMode {
-    Const,
-    Resizing(f32)
+    Resizable(f32),
+    NonResizable
 }
 
 pub fn new<T, F>(

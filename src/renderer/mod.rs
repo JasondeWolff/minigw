@@ -39,7 +39,7 @@ impl<T: RenderTextureType> Renderer<T> {
         let display_vao = GLVAO::new();
 
         let (width, height) = match framebuffer_mode {
-            FramebufferMode::Resizing(scale) => ((width as f32 * scale) as u32, (height as f32 * scale) as u32),
+            FramebufferMode::Resizable(scale) => ((width as f32 * scale) as u32, (height as f32 * scale) as u32),
             _ => (width, height)
         };
 
@@ -67,7 +67,7 @@ impl<T: RenderTextureType> Renderer<T> {
         let height = std::cmp::max(height, 1);
 
         gl_viewport(width, height);
-        if let FramebufferMode::Resizing(scale) = self.framebuffer_mode {
+        if let FramebufferMode::Resizable(scale) = self.framebuffer_mode {
             self.render_texture = RenderTexture::new(
                 (width as f32 * scale) as u32,
                 (height as f32 * scale) as u32,

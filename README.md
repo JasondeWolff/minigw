@@ -20,7 +20,7 @@ This example shows how to create a window and how to draw a gradient every frame
 extern crate minigw;
 
 fn main() {
-    minigw::new::<u8, _>("Example", 1280, 720,
+    minigw::new::<u8, _>("Example", 1280, 720, minigw::FramebufferMode::Resizable(1.0), None,
         move |input, render_texture, imgui| {  
             let mut render_texture = render_texture.as_mut();
 
@@ -40,7 +40,7 @@ extern crate minigw;
 use minigw::imgui;
 
 fn main() {
-    minigw::new::<u8, _>("Example", 1280, 720,
+    minigw::new::<u8, _>("Example", 1280, 720, minigw::FramebufferMode::Resizable(1.0), None,
         move |input, render_texture, imgui| {
             // ...
 
@@ -65,7 +65,7 @@ The framebuffer type can be defined when creating a new window. `u8` works best 
 extern crate minigw;
 
 fn main() {
-    minigw::new::<f32, _>("Example", 1280, 720,
+    minigw::new::<f32, _>("Example", 1280, 720, minigw::FramebufferMode::Resizable(1.0), None,
         move |input, render_texture, imgui| {  
             let mut render_texture = render_texture.as_mut();
 
