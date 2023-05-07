@@ -76,7 +76,7 @@ fn main() {
 ```
 
 ## Framebuffer type
-The framebuffer type can be defined when creating a new window. `u8` works best for performance reasons but other supported types are: `i8`, `u16`, `i16`, `u32`, `i32` and `f32`. The same gradient example but now with an `f32` framebuffer can be seen below.
+The framebuffer type can be defined when creating a new window. `u8` works best for performance reasons but other supported types are: `i8`, `u16`, `i16`, `u32`, `i32` and `f32`. The same gradient example but now with a `f32` framebuffer can be seen below.
 ```rust
 extern crate minigw;
 

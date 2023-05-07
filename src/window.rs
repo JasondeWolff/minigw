@@ -1,7 +1,6 @@
 use crate::RcCell;
 use crate::CoreLoop;
 
-use glutin::platform::windows::WindowExtWindows;
 pub use glutin::window::{Icon, BadIcon, CursorIcon};
 
 /// Wrapper around a glutin window.
@@ -84,10 +83,9 @@ impl Window {
         );
     }
 
-    /// Set the window and taskbar icon, if `icon == None` the os default window icon will be used.
+    /// Set the window icon, if `icon == None` the os default window icon will be used.
     pub fn set_icon(&self, icon: Option<Icon>) {
-        self.internal_window().set_window_icon(icon.clone());
-        self.internal_window().set_taskbar_icon(icon);
+        self.internal_window().set_window_icon(icon);
     }
 
     /// Set the cursor icon.
