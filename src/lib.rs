@@ -13,7 +13,7 @@
 //! Add this to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
-//! minigw = "0.0.4"
+//! minigw = "0.0.5"
 //! ```
 //! This example shows how to create a window and how to draw a gradient every frame.
 //! ```rust
