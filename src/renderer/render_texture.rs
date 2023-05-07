@@ -166,6 +166,7 @@ impl<'a, P: RenderTexturePackedType + std::convert::From<&'a [T; 3]>, T: RenderT
 
     /// Get pixel at coordinates `[x, y]`.
     /// Always make sure `x >= 0 && x < width` AND `y >= 0 && y < height`.
+    #[inline(always)]
     pub fn get_pixel(&self, x: u32, y: u32) -> &P {
         let idx = (y * self.width + x) as usize;
         &self.pixels[idx]
@@ -173,22 +174,26 @@ impl<'a, P: RenderTexturePackedType + std::convert::From<&'a [T; 3]>, T: RenderT
 
     /// Set pixel at coordinates `[x, y]`.
     /// Always make sure `x >= 0 && x < width` AND `y >= 0 && y < height`.
+    #[inline(always)]
     pub fn set_pixel(&mut self, x: u32, y: u32, value: &'a [T; 3]) {
         let idx = (y * self.width + x) as usize;
         self.pixels[idx] = value.into();
     }
 
     /// Get width.
+    #[inline(always)]
     pub fn get_width(&self) -> u32 {
         self.width
     }
 
     /// Get height.
+    #[inline(always)]
     pub fn get_height(&self) -> u32 {
         self.height
     }
 
     /// Get current resizing mode.
+    #[inline(always)]
     pub fn get_resizing_mode(&self) -> RenderTextureResizing {
         self.resizing
     }
