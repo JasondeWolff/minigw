@@ -30,6 +30,13 @@ impl From<&[u8; 4]> for PackedU32 {
     }
 }
 
+impl From<&[u8; 3]> for PackedU32 {
+    fn from(val: &[u8; 3]) -> Self {
+        let (r, g, b) = (val[0] as u32, val[1] as u32, val[2] as u32);
+        PackedU32((r << 16) | (g << 8) | b)
+    }
+}
+
 impl From<&[i8; 4]> for PackedU32 {
     fn from(val: &[i8; 4]) -> Self {
         let (r, g, b, a) = (val[0] as u32, val[1] as u32, val[2] as u32, val[3] as u32);

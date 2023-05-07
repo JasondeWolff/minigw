@@ -25,12 +25,12 @@ impl CoreLoop {
         &self.event_loop
     }
 
-    pub(crate) fn run<T, P, F>(self,
+    pub(crate) fn run<'a, T, P, F>(self,
         mut core_update: F,
         rc_window: RcCell<Window>,
         rc_input: RcCell<Input>
     ) where
-        P: RenderTexturePackedType + 'static,
+        P: RenderTexturePackedType + std::convert::From<&'a [T; 3]> + 'static,
         T: RenderTextureType<P> + 'static,
         F: FnMut(RcCell<Window>, RcCell<Input>, RcCell<RenderTexture<P, T>>, &mut DebugUI) + 'static
     {

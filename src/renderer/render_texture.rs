@@ -12,7 +12,7 @@ pub enum RenderTextureResizing {
 }
 
 /// RenderTexture containing RGB pixel data with every element in the form of `T`.
-pub struct RenderTexture<P: RenderTexturePackedType, T: RenderTextureType<P>> {
+pub struct RenderTexture<P: RenderTexturePackedType, T: RenderTextureType<P> + 'static> {
     texture: GLTexture,
     pbo: Vec<GLPBO>,
     pbo_idx: usize,
@@ -28,7 +28,7 @@ pub struct RenderTexture<P: RenderTexturePackedType, T: RenderTextureType<P>> {
     resizing: RenderTextureResizing
 }
 
-impl<P: RenderTexturePackedType, T: RenderTextureType<P>> RenderTexture<P, T> {
+impl<'a, P: RenderTexturePackedType + std::convert::From<&'a [T; 3]>, T: RenderTextureType<P>> RenderTexture<P, T> {
     pub(crate) fn new(width: u32, height: u32, use_pbo: bool, resizing: RenderTextureResizing) -> RenderTexture<P, T> {
         let src_width = width;
         let src_height = height;
@@ -173,9 +173,9 @@ impl<P: RenderTexturePackedType, T: RenderTextureType<P>> RenderTexture<P, T> {
 
     /// Set pixel at coordinates `[x, y]`.
     /// Always make sure `x >= 0 && x < width` AND `y >= 0 && y < height`.
-    pub fn set_pixel(&mut self, x: u32, y: u32, value: P) {
+    pub fn set_pixel(&mut self, x: u32, y: u32, value: &'a [T; 3]) {
         let idx = (y * self.width + x) as usize;
-        self.pixels[idx] = value;
+        self.pixels[idx] = value.into();
     }
 
     /// Get width.

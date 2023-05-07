@@ -11,14 +11,14 @@ pub use render_texture::*;
 pub mod render_texture_type;
 pub use render_texture_type::*;
 
-pub(crate) struct Renderer<P: RenderTexturePackedType, T: RenderTextureType<P>> {
+pub(crate) struct Renderer<P: RenderTexturePackedType, T: RenderTextureType<P> + 'static> {
     imgui: ImGui,
     display_program: GLShaderProgram,
     display_vao: GLVAO,
     render_texture: RcCell<RenderTexture<P, T>>
 }
 
-impl<P: RenderTexturePackedType, T: RenderTextureType<P>> Renderer<P, T> {
+impl<'a, P: RenderTexturePackedType + std::convert::From<&'a [T; 3]>, T: RenderTextureType<P>> Renderer<P, T> {
     pub(crate) fn new(window: &Window) -> Renderer<P, T> {
         gl_init(window);
 
