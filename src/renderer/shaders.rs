@@ -16,6 +16,6 @@ in vec2 texcoords;
 out vec4 FragColor;
 
 void main() {
-    FragColor.rgb = texture(tex, texcoords).rgb;//pow(texture(tex, texcoords).rgb, vec3(2.2));
+    FragColor.rgb = pow(texture(tex, texcoords).rgb, vec3(2.2));
 }
 ";

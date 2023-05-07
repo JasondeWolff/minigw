@@ -34,6 +34,20 @@ fn main() {
         });
 }
 ```
+## Planned features
+- [X] Gamma correction
+- [X] Window icon
+- [X] Framebuffer scaling
+- [ ] f32 (HDR) colour conversion
+- [ ] Adjustable colour grading
+- [ ] Dedicated render thread
+
+## License
+This project is licensed under the MIT license ([LICENSE-MIT](LICENSE.md) or https://opensource.org/licenses/MIT).
+
+<br/><br/>
+
+# Examples
 ## Input Handling & ImGui
 Input can be handled by querying the state of the input struct. This example will toggle the cursor state between unlocked and locked every time the Space Bar has been pressed. Debug UI can be drawn by directly accessing the `imgui::Ui` struct.
 ```rust
@@ -121,14 +135,45 @@ fn main() {
     });
 }
 ```
+## Adding a window & taskbar icon
+Adding a window icon requires a `Vec<u8>` of pixel data. To get the data this example uses the [stb_image crate](https://crates.io/crates/stb_image) but feel free to use any image library that suits your needs best.
+```rust
+extern crate minigw;
+extern crate stb_image;
 
-## Planned features
-- [X] Gamma correction
-- [X] Window icon
-- [X] Framebuffer scaling
-- [ ] f32 (HDR) colour conversion
-- [ ] Adjustable colour grading
-- [ ] Dedicated render thread
+fn load_img(path: &str) -> (Vec<u8>, u32, u32) {
+    let cpath = std::ffi::CString::new(path.as_bytes()).unwrap();
 
-## License
-This project is licensed under the MIT license ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT).
+    unsafe {
+        let mut width = 0;
+        let mut height = 0;
+        let mut channels = 0;
+        let data = stb_image::stb_image::bindgen::stbi_load(
+            cpath.as_ptr(),
+            &mut width,
+            &mut height,
+            &mut channels,
+            4
+        );
+        assert!(!data.is_null(), "Failed to read image file at \"{:?}\"", path);
+        let data: Vec<u8> = std::slice::from_raw_parts(data, (width * height * 4) as usize).to_vec();
+
+        (data, width as u32, height as u32)
+    }
+}
+
+fn main() {
+    let mut once = true;
+
+    minigw::new::<u8, _>("Example", 1280, 720,
+    move |window, _input, _render_texture, _imgui| {
+        if once {
+            once = false;
+
+            let (rgba, width, height) = load_img("assets/rust.png");
+            let icon = minigw::window::Icon::from_rgba(rgba, width, height).unwrap();
+            window.as_mut().set_icon(Some(icon));
+        }
+    });
+}
+```
