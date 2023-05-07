@@ -13,7 +13,7 @@
 //! Add this to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
-//! minigw = "0.0.2"
+//! minigw = "0.0.4"
 //! ```
 //! This example shows how to create a window and how to draw a gradient every frame.
 //! ```rust
@@ -104,30 +104,22 @@ use core_loop::*;
 mod gl_helpers;
 use gl_helpers::DebugUI;
 
-pub enum FramebufferMode {
-    Resizable(f32),
-    NonResizable
-}
-
 pub fn new<T, F>(
     title: &'static str,
     width: u32,
     height: u32,
-    framebuffer_mode: FramebufferMode,
-    icon: Option<Icon>,
     core_update: F
 ) where
     T: RenderTextureType + 'static,
-    F: FnMut(RcCell<Input>, RcCell<RenderTextureView<T>>, &mut DebugUI) + 'static
+    F: FnMut(RcCell<Window>, RcCell<Input>, RcCell<RenderTexture<T>>, &mut DebugUI) + 'static
 {
     let core_loop = CoreLoop::new();
-    let window = Window::new(&core_loop, title, width, height, icon);
+    let window = Window::new(&core_loop, title, width, height);
     let input = Input::new(window.clone());
 
     core_loop.run(
         core_update,
         window,
-        input,
-        framebuffer_mode
+        input
     );
 }
