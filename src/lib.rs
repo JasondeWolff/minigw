@@ -34,6 +34,20 @@
 //!         });
 //! }
 //! ```
+//! ## Planned features
+//! - [X] Gamma correction
+//! - [X] Window icon
+//! - [X] Framebuffer scaling
+//! - [ ] f32 (HDR) colour conversion
+//! - [ ] Adjustable colour grading
+//! - [ ] Dedicated render thread
+//! 
+//! ## License
+//! This project is licensed under the MIT license ([LICENSE-MIT](LICENSE.md) or <https://opensource.org/licenses/MIT>).
+//! 
+//! <br/><br/>
+//! 
+//! # Examples
 //! ## Input Handling & ImGui
 //! Input can be handled by querying the state of the input struct. This example will toggle the cursor state between unlocked and locked every time the Space Bar has been pressed. Debug UI can be drawn by directly accessing the `imgui::Ui` struct.
 //! ```rust
@@ -163,17 +177,6 @@
 //!     });
 //! }
 //! ```
-//! 
-//! ## Planned features
-//! - [X] Gamma correction
-//! - [X] Window icon
-//! - [X] Framebuffer scaling
-//! - [ ] f32 (HDR) colour conversion
-//! - [ ] Adjustable colour grading
-//! - [ ] Dedicated render thread
-//! 
-//! ## License
-//! This project is licensed under the MIT license ([LICENSE-MIT](LICENSE.md) or <https://opensource.org/licenses/MIT>).
 
 #![warn(clippy::all)]
 #![allow(clippy::manual_memcpy)]
