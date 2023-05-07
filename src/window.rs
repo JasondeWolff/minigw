@@ -4,6 +4,7 @@ use crate::CoreLoop;
 use glutin::platform::windows::WindowExtWindows;
 pub use glutin::window::{Icon, BadIcon, CursorIcon};
 
+/// Wrapper around a glutin window.
 pub struct Window {
     context: glutin::ContextWrapper<glutin::PossiblyCurrent, glutin::window::Window>,
     support_pbo: bool
@@ -53,14 +54,17 @@ impl Window {
         self.support_pbo
     }
 
+    /// Get inner with.
     pub fn get_width(&self) -> u32 {
         self.internal_window().inner_size().width
     }
 
+    /// Get inner height.
     pub fn get_height(&self) -> u32 {
         self.internal_window().inner_size().height
     }
 
+    /// Set inner width.
     pub fn set_width(&self, width: u32) {
         self.internal_window().set_inner_size(
             glutin::dpi::LogicalSize::new(
@@ -70,6 +74,7 @@ impl Window {
         );
     }
 
+    /// Set inner height.
     pub fn set_height(&self, height: u32) {
         self.internal_window().set_inner_size(
             glutin::dpi::LogicalSize::new(
@@ -79,19 +84,23 @@ impl Window {
         );
     }
 
+    /// Set the window and taskbar icon, if `icon == None` the os default window icon will be used.
     pub fn set_icon(&self, icon: Option<Icon>) {
         self.internal_window().set_window_icon(icon.clone());
         self.internal_window().set_taskbar_icon(icon);
     }
 
+    /// Set the cursor icon.
     pub fn set_cursor_icon(&self, cursor: CursorIcon) {
         self.internal_window().set_cursor_icon(cursor);
     }
 
+    /// Get if the window is resizable.
     pub fn is_resizable(&self) -> bool {
         self.internal_window().is_resizable()
     }
 
+    /// Set if the window is resizable.
     pub fn set_resizable(&self, resizable: bool) {
         self.internal_window().set_resizable(resizable);
     }

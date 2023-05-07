@@ -8,12 +8,16 @@ use crate::gl_helpers::ImGui;
 const MAX_KEYS: usize = 512;
 const MAX_BUTTONS: usize = 32;
 
+/// The cursor mode.
+/// - `FREE` the cursor is not restrained in any way.
+/// - `LOCKED` the cursor is contained within the window and hidden.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum CursorMode {
     FREE,
     LOCKED
 }
 
+/// Input manager
 pub struct Input {
     window: RcCell<Window>,
 
@@ -46,34 +50,42 @@ impl Input {
         self.mouse_delta = Vector2::new(0.0, 0.0);
     }
 
+    /// Check if key is pressed.
     pub fn key(&self, key_code: VirtualKeyCode) -> bool {
         self.keys[key_code as usize]
     }
 
+    /// Check if key is pressed AND was not pressed previous frame.
     pub fn key_down(&self, key_code: VirtualKeyCode) -> bool {
         self.keys[key_code as usize] && !self.keys_prev[key_code as usize]
     }
 
+    /// Check if mouse button is pressed.
     pub fn mouse_button(&self, button: MouseButton) -> bool {
         self.buttons[Self::mb_to_idx(button)]
     }
 
+    /// Check if mouse button is pressed AND was not pressed previous frame.
     pub fn mouse_button_down(&self, button: MouseButton) -> bool {
         self.buttons[Self::mb_to_idx(button)] && !self.buttons_prev[Self::mb_to_idx(button)]
     }
 
+    /// Get current mouse position in window space.
     pub fn mouse_pos(&self) -> Vector2<i32> {
         self.mouse_pos
     }
 
+    /// Get mouse velocity.
     pub fn mouse_delta(&self) -> Vector2<f32> {
         self.mouse_delta
     }
 
+    /// Get current cursor mode.
     pub fn get_cursor_mode(&self) -> CursorMode {
         self.cursor_mode
     }
 
+    /// Set current cursor mode.
     pub fn set_cursor_mode(&mut self, mode: CursorMode) {
         let window = self.window.as_ref();
         let winit_window = window.internal_window();
@@ -96,6 +108,7 @@ impl Input {
         self.cursor_mode = mode;
     }
 
+    /// Toggle current cursor mode. `CursorMode::FREE` becomes `CursorMode::LOCKED` and and vice versa.
     pub fn toggle_cursor_mode(&mut self) {
         if self.cursor_mode == CursorMode::FREE {
             self.set_cursor_mode(CursorMode::LOCKED);

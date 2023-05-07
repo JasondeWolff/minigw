@@ -15,8 +15,7 @@ pub(crate) struct Renderer<T: RenderTextureType> {
     imgui: ImGui,
     display_program: GLShaderProgram,
     display_vao: GLVAO,
-    render_texture: RcCell<RenderTexture<T>>,
-    use_pbo: bool
+    render_texture: RcCell<RenderTexture<T>>
 }
 
 impl<T: RenderTextureType> Renderer<T> {
@@ -41,8 +40,7 @@ impl<T: RenderTextureType> Renderer<T> {
             imgui,
             display_program,
             render_texture,
-            display_vao,
-            use_pbo
+            display_vao
         }
     }
 
@@ -57,14 +55,6 @@ impl<T: RenderTextureType> Renderer<T> {
         let height = std::cmp::max(height, 1);
 
         gl_viewport(width, height);
-
-        // let mut render_texture = self.render_texture.as_mut();
-        // match render_texture.get_resizing_mode() {
-        //     RenderTextureResizing::NonResizable => {}
-        //     _ => {
-        //         render_texture.resize(width, height);
-        //     }
-        // }
         self.render_texture.as_mut().resize(width, height);
     }
 

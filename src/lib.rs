@@ -24,6 +24,7 @@
 //!         move |input, render_texture, imgui| {  
 //!             let mut render_texture = render_texture.as_mut();
 //! 
+//!             // Draw a red and green gradient.
 //!             for x in 0..render_texture.width() {
 //!                 for y in 0..render_texture.height() {
 //!                     let uv = (x as f32 / render_texture.width() as f32, y as f32 / render_texture.height() as f32);
@@ -44,6 +45,7 @@
 //!         move |input, render_texture, imgui| {
 //!             // ...
 //! 
+//!             // Toggle the cursor mode between FREE and LOCKED.
 //!             let mut input_mut = input.as_mut();
 //!             if input_mut.key_down(minigw::VirtualKeyCode::Space) {
 //!                 input_mut.toggle_cursor_mode();
@@ -88,6 +90,7 @@
 //!         let input_mut = input.as_mut();
 //!         let mut render_texture = render_texture.as_mut();
 //! 
+//!         // Draw checkerboard pattern.
 //!         for x in 0..render_texture.get_width() {
 //!             for y in 0..render_texture.get_height() {
 //!                 if (x / 60 + y / 60) % 2 == 0 {
@@ -98,10 +101,12 @@
 //!             }
 //!         }
 //!         
+//!         // Toggle window resizability.
 //!         if input_mut.key_down(minigw::VirtualKeyCode::Space) {
 //!             window_mut.set_resizable(!window_mut.is_resizable());
 //!         }
 //! 
+//!         // Loop over all RenderTextureResizing modes.
 //!         if input_mut.key_down(minigw::VirtualKeyCode::M) {
 //!             mode = (mode + 1) % 3;
 //! 
@@ -149,6 +154,7 @@ use core_loop::*;
 mod gl_helpers;
 use gl_helpers::DebugUI;
 
+/// Creates a new minigw game window.
 pub fn new<T, F>(
     title: &'static str,
     width: u32,

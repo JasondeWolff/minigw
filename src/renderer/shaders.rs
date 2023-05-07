@@ -1,4 +1,4 @@
-pub static DISPLAY_SHADER_SRC_VERT: &str = "
+pub(crate) static DISPLAY_SHADER_SRC_VERT: &str = "
 #version 430 core
 out vec2 texcoords;
 
@@ -9,7 +9,7 @@ void main() {
 }
 ";
 
-pub static DISPLAY_SHADER_SRC_FRAG: &str = "
+pub(crate) static DISPLAY_SHADER_SRC_FRAG: &str = "
 #version 430 core
 uniform sampler2D tex;
 in vec2 texcoords;

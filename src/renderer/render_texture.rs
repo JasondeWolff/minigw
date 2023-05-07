@@ -1,5 +1,9 @@
 use super::*;
 
+/// The resizing behaviour of a `RenderTexture`.
+/// - `Resizable` the render texture will be resized to the window size.
+/// - `ResizableScaled(f32)` the render texture will be resized to the window size scaled by a `f32` factor.
+/// - `NonResizable` the render texture will not be resized when the window resizes **or** when `RenderTexture<T>::resize(u32, u32)` is called.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum RenderTextureResizing {
     Resizable,
@@ -7,6 +11,7 @@ pub enum RenderTextureResizing {
     NonResizable
 }
 
+/// RenderTexture containing RGB pixel data with every element in the form of `T`.
 pub struct RenderTexture<T: RenderTextureType> {
     texture: GLTexture,
     pbo: Vec<GLPBO>,
@@ -101,6 +106,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
         }
     }
 
+    /// Resize the render texture, will clear the pixel buffer to 0.
     pub fn resize(&mut self, width: u32, height: u32) {
         self.src_width = width;
         self.src_height = height;
@@ -156,12 +162,16 @@ impl<T: RenderTextureType> RenderTexture<T> {
         }
     }
 
+    /// Get pixel at coordinates `[x, y]`.
+    /// Always make sure `x >= 0 && x < width` AND `y >= 0 && y < height`.
     pub fn get_pixel(&self, x: u32, y: u32) -> &[T; 3] {
         let start = ((y * self.width + x) * 3) as usize;
         let end = start + 3;
         self.pixels[start..end].try_into().unwrap()
     }
 
+    /// Set pixel at coordinates `[x, y]`.
+    /// Always make sure `x >= 0 && x < width` AND `y >= 0 && y < height`.
     pub fn set_pixel(&mut self, x: u32, y: u32, value: &[T; 3]) {
         let start = ((y * self.width + x) * 3) as usize;
         let end = start + 3;
@@ -173,18 +183,22 @@ impl<T: RenderTextureType> RenderTexture<T> {
         }
     }
 
+    /// Get width.
     pub fn get_width(&self) -> u32 {
         self.width
     }
 
+    /// Get height.
     pub fn get_height(&self) -> u32 {
         self.height
     }
 
+    /// Get current resizing mode.
     pub fn get_resizing_mode(&self) -> RenderTextureResizing {
         self.resizing
     }
 
+    /// Set current resizing mode.
     pub fn set_resizing_mode(&mut self, resizing: RenderTextureResizing) {
         self.resizing = resizing;
         self.internal_resize(self.src_width, self.src_height);
