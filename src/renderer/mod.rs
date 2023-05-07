@@ -58,13 +58,14 @@ impl<T: RenderTextureType> Renderer<T> {
 
         gl_viewport(width, height);
 
-        let mut render_texture = self.render_texture.as_mut();
-        match render_texture.get_resizing_mode() {
-            RenderTextureResizing::NonResizable => {}
-            _ => {
-                render_texture.resize(width, height);
-            }
-        }
+        // let mut render_texture = self.render_texture.as_mut();
+        // match render_texture.get_resizing_mode() {
+        //     RenderTextureResizing::NonResizable => {}
+        //     _ => {
+        //         render_texture.resize(width, height);
+        //     }
+        // }
+        self.render_texture.as_mut().resize(width, height);
     }
 
     pub(crate) fn render_texture(&mut self) -> RcCell<RenderTexture<T>> {

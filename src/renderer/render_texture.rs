@@ -104,6 +104,17 @@ impl<T: RenderTextureType> RenderTexture<T> {
     pub fn resize(&mut self, width: u32, height: u32) {
         self.src_width = width;
         self.src_height = height;
+
+        if let RenderTextureResizing::NonResizable = self.resizing {
+            return;
+        }
+        
+        self.internal_resize(width, height);
+    }
+
+    fn internal_resize(&mut self, width: u32, height: u32) {
+        self.src_width = width;
+        self.src_height = height;
         let (width, height) = Self::get_sized_dims(width, height, self.resizing);
         self.width = width;
         self.height = height;
@@ -176,6 +187,6 @@ impl<T: RenderTextureType> RenderTexture<T> {
 
     pub fn set_resizing_mode(&mut self, resizing: RenderTextureResizing) {
         self.resizing = resizing;
-        self.resize(self.width, self.height);
+        self.internal_resize(self.src_width, self.src_height);
     }
 }

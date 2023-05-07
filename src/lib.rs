@@ -20,7 +20,7 @@
 //! extern crate minigw;
 //! 
 //! fn main() {
-//!     minigw::new::<u8, _>("Example", 1280, 720, minigw::FramebufferMode::Resizable(1.0), None,
+//!     minigw::new::<u8, _>("Example", 1280, 720,
 //!         move |input, render_texture, imgui| {  
 //!             let mut render_texture = render_texture.as_mut();
 //! 
@@ -40,7 +40,7 @@
 //! use minigw::imgui;
 //! 
 //! fn main() {
-//!     minigw::new::<u8, _>("Example", 1280, 720, minigw::FramebufferMode::Resizable(1.0), None,
+//!     minigw::new::<u8, _>("Example", 1280, 720,
 //!         move |input, render_texture, imgui| {
 //!             // ...
 //! 
@@ -65,22 +65,67 @@
 //! extern crate minigw;
 //! 
 //! fn main() {
-//!     minigw::new::<f32, _>("Example", 1280, 720, minigw::FramebufferMode::Resizable(1.0), None,
+//!     minigw::new::<f32, _>("Example", 1280, 720,
 //!         move |input, render_texture, imgui| {  
-//!             let mut render_texture = render_texture.as_mut();
-//! 
-//!             for x in 0..render_texture.width() {
-//!                 for y in 0..render_texture.height() {
-//!                     let uv = (x as f32 / render_texture.width() as f32, y as f32 / render_texture.height() as f32);
+//!             // ...
+//!                 // ...
 //!                     render_texture.set_pixel(x, y, &[uv.0, uv.1, 0]);
-//!                 }
-//!             }
 //!         });
 //! }
 //! ```
 //! 
-//! ## License
+//! ## Window & Framebuffer resizing
+//! The resizing of the window can be enabled and disabled. The framebuffer's rendertexture can: resize with the window, resize with the window scaled by a factor or don't resize with the window. The example below shows how to switch between these modes.
+//! ```rust
+//! extern crate minigw;
 //! 
+//! fn main() {
+//!     let mut mode = 0;
+//! 
+//!     minigw::new::<u8, _>("Example", 1280, 720,
+//!     move |window, input, render_texture, _imgui| {
+//!         let window_mut = window.as_mut();
+//!         let input_mut = input.as_mut();
+//!         let mut render_texture = render_texture.as_mut();
+//! 
+//!         for x in 0..render_texture.get_width() {
+//!             for y in 0..render_texture.get_height() {
+//!                 if (x / 60 + y / 60) % 2 == 0 {
+//!                     render_texture.set_pixel(x, y, &[255, 255, 255]);
+//!                 } else {
+//!                     render_texture.set_pixel(x, y, &[0, 0, 0]);
+//!                 }
+//!             }
+//!         }
+//!         
+//!         if input_mut.key_down(minigw::VirtualKeyCode::Space) {
+//!             window_mut.set_resizable(!window_mut.is_resizable());
+//!         }
+//! 
+//!         if input_mut.key_down(minigw::VirtualKeyCode::M) {
+//!             mode = (mode + 1) % 3;
+//! 
+//!             let rtm = match mode {
+//!                 0 => minigw::RenderTextureResizing::Resizable,
+//!                 1 => minigw::RenderTextureResizing::ResizableScaled(0.3),
+//!                 _ => minigw::RenderTextureResizing::NonResizable
+//!             };
+//! 
+//!             render_texture.set_resizing_mode(rtm);
+//!         }
+//!     });
+//! }
+//! ```
+//! 
+//! ## Planned features
+//! - [X] Gamma correction
+//! - [X] Window icon
+//! - [X] Framebuffer scaling
+//! - [ ] f32 (HDR) colour conversion
+//! - [ ] Adjustable colour grading
+//! - [ ] Dedicated render thread
+//! 
+//! ## License
 //! This project is licensed under the MIT license ([LICENSE-MIT](LICENSE-MIT) or <https://opensource.org/licenses/MIT>).
 
 #![warn(clippy::all)]
