@@ -164,6 +164,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
 
     /// Get pixel at coordinates `[x, y]`.
     /// Always make sure `x >= 0 && x < width` AND `y >= 0 && y < height`.
+    #[inline(always)]
     pub fn get_pixel(&self, x: u32, y: u32) -> &[T; 3] {
         let start = ((y * self.width + x) * 3) as usize;
         let end = start + 3;
@@ -172,6 +173,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
 
     /// Set pixel at coordinates `[x, y]`.
     /// Always make sure `x >= 0 && x < width` AND `y >= 0 && y < height`.
+    #[inline(always)]
     pub fn set_pixel(&mut self, x: u32, y: u32, value: &[T; 3]) {
         let start = ((y * self.width + x) * 3) as usize;
         let end = start + 3;
@@ -184,16 +186,19 @@ impl<T: RenderTextureType> RenderTexture<T> {
     }
 
     /// Get width.
+    #[inline(always)]
     pub fn get_width(&self) -> u32 {
         self.width
     }
 
     /// Get height.
+    #[inline(always)]
     pub fn get_height(&self) -> u32 {
         self.height
     }
 
     /// Get current resizing mode.
+    #[inline(always)]
     pub fn get_resizing_mode(&self) -> RenderTextureResizing {
         self.resizing
     }
