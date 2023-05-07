@@ -200,14 +200,15 @@ mod gl_helpers;
 use gl_helpers::DebugUI;
 
 /// Creates a new minigw game window.
-pub fn new<T, F>(
+pub fn new<T, P, F>(
     title: &'static str,
     width: u32,
     height: u32,
     core_update: F
 ) where
-    T: RenderTextureType + 'static,
-    F: FnMut(RcCell<Window>, RcCell<Input>, RcCell<RenderTexture<T>>, &mut DebugUI) + 'static
+    T: RenderTextureType<P> + 'static,
+    P: RenderTexturePackedType + 'static,
+    F: FnMut(RcCell<Window>, RcCell<Input>, RcCell<RenderTexture<P, T>>, &mut DebugUI) + 'static
 {
     let core_loop = CoreLoop::new();
     let window = Window::new(&core_loop, title, width, height);

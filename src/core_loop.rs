@@ -5,7 +5,7 @@ use cgmath::Vector2;
 use crate::RcCell;
 use crate::Window;
 use crate::Input;
-use crate::{Renderer, RenderTexture, RenderTextureType};
+use crate::{Renderer, RenderTexture, RenderTextureType, RenderTexturePackedType};
 use crate::gl_helpers::DebugUI;
 
 pub struct CoreLoop {
@@ -25,13 +25,14 @@ impl CoreLoop {
         &self.event_loop
     }
 
-    pub(crate) fn run<T, F>(self,
+    pub(crate) fn run<T, P, F>(self,
         mut core_update: F,
         rc_window: RcCell<Window>,
         rc_input: RcCell<Input>
     ) where
-        T: RenderTextureType + 'static,
-        F: FnMut(RcCell<Window>, RcCell<Input>, RcCell<RenderTexture<T>>, &mut DebugUI) + 'static
+        P: RenderTexturePackedType + 'static,
+        T: RenderTextureType<P> + 'static,
+        F: FnMut(RcCell<Window>, RcCell<Input>, RcCell<RenderTexture<P, T>>, &mut DebugUI) + 'static
     {
         let mut renderer = Renderer::new(&rc_window.as_ref());
 

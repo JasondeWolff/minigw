@@ -12,7 +12,7 @@ pub enum RenderTextureResizing {
 }
 
 /// RenderTexture containing RGB pixel data with every element in the form of `T`.
-pub struct RenderTexture<T: RenderTextureType> {
+pub struct RenderTexture<P: RenderTexturePackedType, T: RenderTextureType<P>> {
     texture: GLTexture,
     pbo: Vec<GLPBO>,
     pbo_idx: usize,
@@ -22,24 +22,25 @@ pub struct RenderTexture<T: RenderTextureType> {
     height: u32,
     ty: u32,
 
-    pixels: Vec<T>,
+    pixels: Vec<P>,
+    _dummy_pixel: T,
     use_pbo: bool,
     resizing: RenderTextureResizing
 }
 
-impl<T: RenderTextureType> RenderTexture<T> {
-    pub(crate) fn new(width: u32, height: u32, use_pbo: bool, resizing: RenderTextureResizing) -> RenderTexture<T> {
+impl<P: RenderTexturePackedType, T: RenderTextureType<P>> RenderTexture<P, T> {
+    pub(crate) fn new(width: u32, height: u32, use_pbo: bool, resizing: RenderTextureResizing) -> RenderTexture<P, T> {
         let src_width = width;
         let src_height = height;
         let (width, height) = Self::get_sized_dims(width, height, resizing);
 
         gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 1);
 
-        let size = (width * height * std::mem::size_of::<T>() as u32 * 3) as usize;
+        let size = (width * height * std::mem::size_of::<T>() as u32 * 4) as usize;
 
         let texture = GLTexture::new(gl::TEXTURE_2D);
         let mut pbo = vec![GLPBO::new(), GLPBO::new()];
-        let pixels = vec![T::default(); size / std::mem::size_of::<T>()];
+        let pixels = vec![P::default(); size / std::mem::size_of::<T>() / 4];
         let ty = T::get_type();
 
         texture.bind(); {
@@ -48,7 +49,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
             gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST);
             gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST);
 
-            gl_tex_image_2d(gl::RGB, width as i32, height as i32, gl::RGB, ty, std::ptr::null());
+            gl_tex_image_2d(gl::RGBA, width as i32, height as i32, gl::BGRA, ty, std::ptr::null());
 
             for pbo in &mut pbo {
                 pbo.bind();
@@ -69,6 +70,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
             height,
             ty,
             pixels,
+            _dummy_pixel: T::default(),
             use_pbo,
             resizing
         }
@@ -82,7 +84,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
     pub(crate) fn write(&mut self) {
         if self.use_pbo {
             self.pbo[self.pbo_idx].bind();
-            let pixels = self.pbo[self.pbo_idx].map() as *mut T;
+            let pixels = self.pbo[self.pbo_idx].map() as *mut P;
             unsafe {
                 pixels.copy_from_nonoverlapping(self.pixels.as_ptr(), self.pixels.len());
             }
@@ -91,7 +93,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
             gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 1);
 
             self.texture.bind();
-            gl_tex_sub_image_2d(self.width as i32, self.height as i32, gl::RGB, self.ty, std::ptr::null());
+            gl_tex_sub_image_2d(self.width as i32, self.height as i32, gl::BGRA, self.ty, std::ptr::null());
             self.texture.unbind();
 
             gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 4);
@@ -101,7 +103,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
             self.pbo_idx = (self.pbo_idx + 1) % self.pbo.len();
         } else {
             self.texture.bind();
-            gl_tex_sub_image_2d(self.width as i32, self.height as i32, gl::RGB, self.ty, self.pixels.as_ptr() as *const std::ffi::c_void);
+            gl_tex_sub_image_2d(self.width as i32, self.height as i32, gl::BGRA, self.ty, self.pixels.as_ptr() as *const std::ffi::c_void);
             self.texture.unbind();
         }
     }
@@ -128,12 +130,12 @@ impl<T: RenderTextureType> RenderTexture<T> {
         gl_finish();
         gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 1);
 
-        let size = (width * height * std::mem::size_of::<T>() as u32 * 3) as usize;
+        let size = (width * height * std::mem::size_of::<T>() as u32 * 4) as usize;
 
         self.texture = GLTexture::new(gl::TEXTURE_2D);
         self.pbo = vec![GLPBO::new(), GLPBO::new()];
         self.pbo_idx = 0;
-        self.pixels = vec![T::default(); size / std::mem::size_of::<T>()];
+        self.pixels = vec![P::default(); size / std::mem::size_of::<T>() / 4];
 
         self.texture.bind(); {
             gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE);
@@ -141,7 +143,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
             gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST);
             gl_tex_parami(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST);
 
-            gl_tex_image_2d(gl::RGB, width as i32, height as i32, gl::RGB, self.ty, std::ptr::null());
+            gl_tex_image_2d(gl::RGBA, width as i32, height as i32, gl::BGRA, self.ty, std::ptr::null());
 
             for pbo in &mut self.pbo {
                 pbo.bind();
@@ -164,23 +166,16 @@ impl<T: RenderTextureType> RenderTexture<T> {
 
     /// Get pixel at coordinates `[x, y]`.
     /// Always make sure `x >= 0 && x < width` AND `y >= 0 && y < height`.
-    pub fn get_pixel(&self, x: u32, y: u32) -> &[T; 3] {
-        let start = ((y * self.width + x) * 3) as usize;
-        let end = start + 3;
-        self.pixels[start..end].try_into().unwrap()
+    pub fn get_pixel(&self, x: u32, y: u32) -> &P {
+        let idx = (y * self.width + x) as usize;
+        &self.pixels[idx]
     }
 
     /// Set pixel at coordinates `[x, y]`.
     /// Always make sure `x >= 0 && x < width` AND `y >= 0 && y < height`.
-    pub fn set_pixel(&mut self, x: u32, y: u32, value: &[T; 3]) {
-        let start = ((y * self.width + x) * 3) as usize;
-        let end = start + 3;
-
-        let mut j = 0;
-        for i in start..end {
-            self.pixels[i] = value[j];
-            j += 1;
-        }
+    pub fn set_pixel(&mut self, x: u32, y: u32, value: P) {
+        let idx = (y * self.width + x) as usize;
+        self.pixels[idx] = value;
     }
 
     /// Get width.

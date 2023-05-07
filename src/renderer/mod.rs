@@ -11,15 +11,15 @@ pub use render_texture::*;
 pub mod render_texture_type;
 pub use render_texture_type::*;
 
-pub(crate) struct Renderer<T: RenderTextureType> {
+pub(crate) struct Renderer<P: RenderTexturePackedType, T: RenderTextureType<P>> {
     imgui: ImGui,
     display_program: GLShaderProgram,
     display_vao: GLVAO,
-    render_texture: RcCell<RenderTexture<T>>
+    render_texture: RcCell<RenderTexture<P, T>>
 }
 
-impl<T: RenderTextureType> Renderer<T> {
-    pub(crate) fn new(window: &Window) -> Renderer<T> {
+impl<P: RenderTexturePackedType, T: RenderTextureType<P>> Renderer<P, T> {
+    pub(crate) fn new(window: &Window) -> Renderer<P, T> {
         gl_init(window);
 
         let (width, height) = (window.get_width(), window.get_height());
@@ -58,7 +58,7 @@ impl<T: RenderTextureType> Renderer<T> {
         self.render_texture.as_mut().resize(width, height);
     }
 
-    pub(crate) fn render_texture(&mut self) -> RcCell<RenderTexture<T>> {
+    pub(crate) fn render_texture(&mut self) -> RcCell<RenderTexture<P, T>> {
         self.render_texture.clone()
     }
 
