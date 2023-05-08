@@ -122,7 +122,7 @@ impl Input {
     }
 
     pub(crate) fn set_mouse_button(&mut self, button: MouseButton, value: bool, imgui: &mut ImGui) {
-        self.keys[Self::mb_to_idx(button)] = value;
+        self.buttons[Self::mb_to_idx(button)] = value;
 
         imgui.mouse_button_event(winit_to_imgui_mouse_button(button), value);
     }

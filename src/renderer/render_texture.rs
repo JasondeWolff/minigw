@@ -14,8 +14,7 @@ pub enum RenderTextureResizing {
 /// RenderTexture containing RGB pixel data with every element in the form of `T`.
 pub struct RenderTexture<T: RenderTextureType> {
     texture: GLTexture,
-    pbo: Vec<GLPBO>,
-    pbo_idx: usize,
+    pbo: GLPBO,
     src_width: u32,
     src_height: u32,
     width: u32,
@@ -38,7 +37,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
         let size = (width * height * std::mem::size_of::<T>() as u32 * 3) as usize;
 
         let texture = GLTexture::new(gl::TEXTURE_2D);
-        let mut pbo = vec![GLPBO::new(), GLPBO::new()];
+        let mut pbo = GLPBO::new();
         let pixels = vec![T::default(); size / std::mem::size_of::<T>()];
         let ty = T::get_type();
 
@@ -50,11 +49,9 @@ impl<T: RenderTextureType> RenderTexture<T> {
 
             gl_tex_image_2d(gl::RGB, width as i32, height as i32, gl::RGB, ty, std::ptr::null());
 
-            for pbo in &mut pbo {
-                pbo.bind();
-                pbo.allocate(size);
-                pbo.unbind();
-            }
+            pbo.bind();
+            pbo.allocate(size);
+            pbo.unbind();
         } texture.unbind();
 
         gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 4);
@@ -62,7 +59,6 @@ impl<T: RenderTextureType> RenderTexture<T> {
         RenderTexture {
             texture,
             pbo,
-            pbo_idx: 0,
             src_width,
             src_height,
             width,
@@ -79,15 +75,21 @@ impl<T: RenderTextureType> RenderTexture<T> {
         self.texture.bind();
     }
 
-    pub(crate) fn write(&mut self) {
+    pub(crate) fn async_write(&mut self) {
         if self.use_pbo {
-            self.pbo[self.pbo_idx].bind();
-            let pixels = self.pbo[self.pbo_idx].map() as *mut T;
+            self.pbo.bind();
+            let pixels = self.pbo.map() as *mut T;
             unsafe {
                 pixels.copy_from_nonoverlapping(self.pixels.as_ptr(), self.pixels.len());
             }
-            self.pbo[self.pbo_idx].unmap();
+            self.pbo.unmap();
+            self.pbo.unbind();
+        }
+    }
 
+    pub(crate) fn flush_write(&mut self) {
+        if self.use_pbo {
+            self.pbo.bind();
             gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 1);
 
             self.texture.bind();
@@ -95,10 +97,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
             self.texture.unbind();
 
             gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 4);
-
-            self.pbo[self.pbo_idx].unbind();
-
-            self.pbo_idx = (self.pbo_idx + 1) % self.pbo.len();
+            self.pbo.unbind();
         } else {
             self.texture.bind();
             gl_tex_sub_image_2d(self.width as i32, self.height as i32, gl::RGB, self.ty, self.pixels.as_ptr() as *const std::ffi::c_void);
@@ -131,8 +130,7 @@ impl<T: RenderTextureType> RenderTexture<T> {
         let size = (width * height * std::mem::size_of::<T>() as u32 * 3) as usize;
 
         self.texture = GLTexture::new(gl::TEXTURE_2D);
-        self.pbo = vec![GLPBO::new(), GLPBO::new()];
-        self.pbo_idx = 0;
+        self.pbo = GLPBO::new();
         self.pixels = vec![T::default(); size / std::mem::size_of::<T>()];
 
         self.texture.bind(); {
@@ -143,11 +141,9 @@ impl<T: RenderTextureType> RenderTexture<T> {
 
             gl_tex_image_2d(gl::RGB, width as i32, height as i32, gl::RGB, self.ty, std::ptr::null());
 
-            for pbo in &mut self.pbo {
-                pbo.bind();
-                pbo.allocate(size);
-                pbo.unbind();
-            }
+            self.pbo.bind();
+            self.pbo.allocate(size);
+            self.pbo.unbind();
         } self.texture.unbind();
 
         gl_pixel_store_i(gl::UNPACK_ALIGNMENT, 4);
@@ -165,24 +161,19 @@ impl<T: RenderTextureType> RenderTexture<T> {
     /// Get pixel at coordinates `[x, y]`.
     /// Always make sure `x >= 0 && x < width` AND `y >= 0 && y < height`.
     #[inline(always)]
-    pub fn get_pixel(&self, x: u32, y: u32) -> &[T; 3] {
-        let start = ((y * self.width + x) * 3) as usize;
-        let end = start + 3;
-        self.pixels[start..end].try_into().unwrap()
+    pub fn get_pixel(&self, x: u32, y: u32) -> (T, T, T) {
+        let i = ((y * self.width + x) * 3) as usize;
+        (self.pixels[i], self.pixels[i + 1], self.pixels[i + 2])
     }
 
     /// Set pixel at coordinates `[x, y]`.
     /// Always make sure `x >= 0 && x < width` AND `y >= 0 && y < height`.
     #[inline(always)]
-    pub fn set_pixel(&mut self, x: u32, y: u32, value: &[T; 3]) {
-        let start = ((y * self.width + x) * 3) as usize;
-        let end = start + 3;
-
-        let mut j = 0;
-        for i in start..end {
-            self.pixels[i] = value[j];
-            j += 1;
-        }
+    pub fn set_pixel(&mut self, x: u32, y: u32, r: T, g: T, b: T) {
+        let i = ((y * self.width + x) * 3) as usize;
+        self.pixels[i] = r;
+        self.pixels[i + 1] = g;
+        self.pixels[i + 2] = b;
     }
 
     /// Get width.
